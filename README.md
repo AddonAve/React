@@ -4,7 +4,7 @@ React can react to the following events
  * <Actor> begins casting <action>
  * <Actor> readies <action>
  * <Actor> finishes casting <action>
- * <Actor> finishes ready >move>.
+ * <Actor> finishes ready <move>
 
 ** Note: 1hrs have no 'readying' - so you can only react to a 'Complete' 
  
