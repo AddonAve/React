@@ -19,6 +19,7 @@ res = require('resources')
 
 autorun = 0				-- Runtime movement state (DO NOT EDIT)
 chatcolor = 2			-- Change default React color
+react_enabled = 1		-- 1=On, 0=Off
 
 if windower.ffxi.get_player() then 
 self = windower.ffxi.get_player()
@@ -107,6 +108,8 @@ custom_reactions_file:write('return ' .. T(custom_reactions):tovstring())
 end
 
 windower.register_event('action', function(act)
+-- Global master toggle
+if react_enabled == 0 then return end
 local actor = windower.ffxi.get_mob_by_id(act.actor_id)		
 local self = windower.ffxi.get_player()
 local target_count = act.target_count 
@@ -166,6 +169,14 @@ end
 end)
 
 windower.register_event('prerender', function()
+-- If disabled, ensure we are not running
+if react_enabled == 0 then
+    if autorun == 1 then
+        windower.ffxi.run(false)
+        autorun = 0
+    end
+    return
+end
 if autorun == 1 and autorun_target and autorun_distance and autorun_tofrom then 
 local t = windower.ffxi.get_mob_by_index(autorun_target.index)
 if t.valid_target and (t.status == 1 or t.status == 0) then 
@@ -404,23 +415,21 @@ end
 
 windower.register_event('addon command', function(command, ...)
 local args = L{...}
-if command:lower() == 'debugmode' then
-if debugmode == 0 then
-debugmode = 1
-windower.add_to_chat(chatcolor,"React: Debug Mode On")
-else 
-debugmode = 0
-windower.add_to_chat(chatcolor,"React: Debug Mode Off")
+local cmd = (command and command:lower()) or ''
+if cmd == 'on' then
+react_enabled = 1
+windower.add_to_chat(chatcolor, "React: Enabled")
+return
 end
+
+if cmd == 'off' then
+react_enabled = 0
+if autorun == 1 then
+windower.ffxi.run(false)
+autorun = 0
 end
-if command:lower() == 'chatlog' then
-if chatlog == 0 then
-chatlog = 1
-windower.add_to_chat(chatcolor,"React: Chat log messages On")
-else 
-chatlog = 0
-windower.add_to_chat(chatcolor,"React: Chat log messages Off")
-end
+windower.add_to_chat(chatcolor, "React: Disabled")
+return
 end
 
 if command:lower() == 'add' then
@@ -429,6 +438,16 @@ end
 
 if command:lower() == 'list' then
 listaction(args)
+end
+
+if command:lower() == 'chatlog' then
+if chatlog == 0 then
+chatlog = 1
+windower.add_to_chat(chatcolor,"React: Chat log messages On")
+else 
+chatlog = 0
+windower.add_to_chat(chatcolor,"React: Chat log messages Off")
+end
 end
 
 if command:lower() == 'remove' then
@@ -444,12 +463,12 @@ facemob()
 end
 
 if command:lower() == 'runaway' then 
-local rundistance = args[1] or 18 -- Setting Default run distance to 18
+local rundistance = args[1] or 18
 runaway(nil,math.floor(rundistance))		
 end
 
 if command:lower() == 'runto'  then 
-local rundistance = args[1] or 2 -- Will run up to 2 yalms infront of
+local rundistance = args[1] or 2
 runto(nil,math.floor(rundistance))
 end
 
@@ -458,10 +477,21 @@ windower.ffxi.run(false)
 autorun = 0
 end
 
+if command:lower() == 'debugmode' then
+if debugmode == 0 then
+debugmode = 1
+windower.add_to_chat(chatcolor,"React: Debug Mode On")
+else 
+debugmode = 0
+windower.add_to_chat(chatcolor,"React: Debug Mode Off")
+end
+end
+
 if command:lower() == 'help' then
 windower.add_to_chat(208, 'React Commands:')
-windower.add_to_chat(208, '//react list - Lists abilities per target')
+windower.add_to_chat(208, '//react on|off - Enable/Disable')
 windower.add_to_chat(208, '//react add - Adds a reaction to an ability')
+windower.add_to_chat(208, '//react list - Lists abilities per target')
 windower.add_to_chat(208, '//react remove - Removes action/reaction from a target')
 windower.add_to_chat(208, '//react debugmode - Print to console all moves capable of reacting')
 windower.add_to_chat(208, '//react chatlog - Show/hide chat log messages')
