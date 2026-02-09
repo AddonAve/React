@@ -171,11 +171,11 @@ end)
 windower.register_event('prerender', function()
 -- If disabled, ensure we are not running
 if react_enabled == 0 then
-    if autorun == 1 then
-        windower.ffxi.run(false)
-        autorun = 0
-    end
-    return
+if autorun == 1 then
+windower.ffxi.run(false)
+autorun = 0
+end
+return
 end
 if autorun == 1 and autorun_target and autorun_distance and autorun_tofrom then 
 local t = windower.ffxi.get_mob_by_index(autorun_target.index)
@@ -215,32 +215,32 @@ if custom_reactions[actor.name][ability.en].ready_reaction then
 if custom_reactions[actor.name][ability.en].ready_reaction:lower() == 'turnaround' then 
 turnaround(actor)
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: Turning Around")
+windower.add_to_chat(chatcolor,"React Action: Turning Around")
 end
 elseif custom_reactions[actor.name][ability.en].ready_reaction:lower() == 'facemob' then 
 facemob(actor)
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: Facing Mob")
+windower.add_to_chat(chatcolor,"React Action: Facing Mob")
 end
 elseif string.find(custom_reactions[actor.name][ability.en].ready_reaction:lower(), 'runaway') then 
 local actionstring = custom_reactions[actor.name][ability.en].ready_reaction:lower()
 local run_distance = string.match(actionstring,"%d+")
 runaway(actor,math.floor(run_distance))
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: Runaway "..run_distance.." yalms.")
+windower.add_to_chat(chatcolor,"React Action: Runaway "..run_distance.." yalms.")
 end
 elseif string.find(custom_reactions[actor.name][ability.en].ready_reaction:lower(), 'runto') then 
 local actionstring = custom_reactions[actor.name][ability.en].ready_reaction:lower()
 local run_distance = string.match(actionstring,"%d+")
 runto(actor,math.floor(run_distance))
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: Runto "..run_distance.." yalms.")
+windower.add_to_chat(chatcolor,"React Action: Runto "..run_distance.." yalms.")
 end
 else
 currentReaction = parseAction(actor,custom_reactions[actor.name][ability.en].ready_reaction)
 windower.send_command(currentReaction)
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: "..custom_reactions[actor.name][ability.en].ready_reaction)
+windower.add_to_chat(chatcolor,"React Action: "..custom_reactions[actor.name][ability.en].ready_reaction)
 end
 end
 end
@@ -249,37 +249,37 @@ if custom_reactions[actor.name][ability.en].complete_reaction then
 if custom_reactions[actor.name][ability.en].complete_reaction:lower() == 'turnaround' then 
 turnaround(actor)
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: Turning Around")
+windower.add_to_chat(chatcolor,"React Action: Turning Around")
 end
 elseif custom_reactions[actor.name][ability.en].complete_reaction:lower() == 'facemob' then 
 facemob(actor)
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: Facing")
+windower.add_to_chat(chatcolor,"React Action: Facing")
 end
 elseif string.find(custom_reactions[actor.name][ability.en].complete_reaction:lower(), 'runaway') then 
 local actionstring = custom_reactions[actor.name][ability.en].complete_reaction:lower()
 local run_distance = string.match(actionstring,"%d+")
 runaway(actor,math.floor(run_distance))
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: Runaway "..run_distance.." yalms.")
+windower.add_to_chat(chatcolor,"React Action: Runaway "..run_distance.." yalms.")
 end
 elseif string.find(custom_reactions[actor.name][ability.en].complete_reaction:lower(), 'runto') then 
 local actionstring = custom_reactions[actor.name][ability.en].complete_reaction:lower()
 local run_distance = string.match(actionstring,"%d+")
 runto(actor,math.floor(run_distance))
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: Runto "..run_distance.." yalms.")
+windower.add_to_chat(chatcolor,"React Action: Runto "..run_distance.." yalms.")
 end
 elseif custom_reactions[actor.name][ability.en].complete_reaction == '' then
 windower.send_command("gs c update")
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: Running Default gs c update")
+windower.add_to_chat(chatcolor,"React Action: Running Default gs c update")
 end
 else
 currentReaction = parseAction(actor, custom_reactions[actor.name][ability.en].complete_reaction)
 windower.send_command(currentReaction)
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: "..custom_reactions[actor.name][ability.en].complete_reaction)
+windower.add_to_chat(chatcolor,"React Action: "..custom_reactions[actor.name][ability.en].complete_reaction)
 end
 end
 end
@@ -299,7 +299,7 @@ if custom_reactions[self.name][ability.en].ready_reaction then
 currentReaction = parseAction(actor,custom_reactions[self.name][ability.en].ready_reaction)
 windower.send_command(currentReaction)
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: "..custom_reactions[self.name][ability.en].ready_reaction)
+windower.add_to_chat(chatcolor,"React Action: "..custom_reactions[self.name][ability.en].ready_reaction)
 end
 end
 else
@@ -307,13 +307,13 @@ if custom_reactions[self.name][ability.en].complete_reaction then
 if custom_reactions[self.name][ability.en].complete_reaction == '' then
 windower.send_command("gs c update")
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: Running Default gs c update")
+windower.add_to_chat(chatcolor,"React Action: Running Default gs c update")
 end
 else
 currentReaction = parseAction(actor,custom_reactions[self.name][ability.en].complete_reaction)
 windower.send_command(currentReaction)
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"-- React Action: "..custom_reactions[self.name][ability.en].complete_reaction)
+windower.add_to_chat(chatcolor,"React Action: "..custom_reactions[self.name][ability.en].complete_reaction)
 end
 end
 end
