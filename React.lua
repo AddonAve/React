@@ -17,9 +17,12 @@ res = require('resources')
 -- Settings
 --------------------------------------------------------------------------------
 
-autorun = 0				-- Runtime movement state (DO NOT EDIT)
-chatcolor = 2			-- Change default React color
-react_enabled = 1		-- 1=On, 0=Off
+-- Runtime movement state (Do Not Edit)
+autorun = 0
+-- Change default React color
+chatcolor = 2
+-- 1 = On, 0 = Off
+react_enabled = 1
 
 if windower.ffxi.get_player() then 
 self = windower.ffxi.get_player()
@@ -239,9 +242,9 @@ end
 else
 currentReaction = parseAction(actor,custom_reactions[actor.name][ability.en].ready_reaction)
 windower.send_command(currentReaction)
-if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"React Action: "..custom_reactions[actor.name][ability.en].ready_reaction)
-end
+--if chatlog == 1 then 
+--windower.add_to_chat(chatcolor,"React Action: "..custom_reactions[actor.name][ability.en].ready_reaction)
+--end
 end
 end
 else
@@ -272,9 +275,9 @@ windower.add_to_chat(chatcolor,"React Action: Runto "..run_distance.." yalms.")
 end
 elseif custom_reactions[actor.name][ability.en].complete_reaction == '' then
 windower.send_command("gs c update")
-if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"React Action: Running Default gs c update")
-end
+--if chatlog == 1 then 
+--windower.add_to_chat(chatcolor,"React Action: Running gs c update")
+--end
 else
 currentReaction = parseAction(actor, custom_reactions[actor.name][ability.en].complete_reaction)
 windower.send_command(currentReaction)
@@ -298,16 +301,16 @@ if category == 7 or category == 8 then
 if custom_reactions[self.name][ability.en].ready_reaction then
 currentReaction = parseAction(actor,custom_reactions[self.name][ability.en].ready_reaction)
 windower.send_command(currentReaction)
-if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"React Action: "..custom_reactions[self.name][ability.en].ready_reaction)
-end
+--if chatlog == 1 then 
+--windower.add_to_chat(chatcolor,"React Action: "..custom_reactions[self.name][ability.en].ready_reaction)
+--end
 end
 else
 if custom_reactions[self.name][ability.en].complete_reaction then
 if custom_reactions[self.name][ability.en].complete_reaction == '' then
 windower.send_command("gs c update")
 if chatlog == 1 then 
-windower.add_to_chat(chatcolor,"React Action: Running Default gs c update")
+windower.add_to_chat(chatcolor,"React Action: Running default gs c update")
 end
 else
 currentReaction = parseAction(actor,custom_reactions[self.name][ability.en].complete_reaction)
@@ -499,7 +502,7 @@ end
 end)
 
 --------------------------------------------------------------------------------
--- Job change/Zone change
+-- Job change + Zone change
 --------------------------------------------------------------------------------
 
 windower.register_event('job change', function()
