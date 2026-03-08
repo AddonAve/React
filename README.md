@@ -1,4 +1,4 @@
-React is a Windower addon that reacts to different situations.
+**React** is a Windower addon that reacts to different situations.
 
 Prior to version 1.4, React only worked with the actor as an NPC (trust or enemy mob). With version 1.4, react has been expanded to react based on Player characters only in the instances of Healing or Enhancing Magic. In order for this type of processing to occur, you must build a reaction with the Actor of yourself. Example: //react add "YOURNAMEHERE" "Protect V" ready "input /equip ring1 'sheltered ring'"
  
