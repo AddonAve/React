@@ -2,14 +2,14 @@
 
 ## Release Notes
 
-**1.8.0 - Addon Ave modification**
+**Version 1.8.0 - Addon Ave modification**
 1. Only reacts to targets that are claimed by self or party
 2. Added //react [on|off]
 
-**1.6.0.0**
+**Version 1.6.0.0**
 - Added in $ACTORID variable to use in a reaction which is useful for sending helper lua's commands about the actor that performed the action
  
-**1.4.0.4**
+**Version 1.4.0.4**
 1. Added in a default "complete" command of "gs c update" 
 2. Expanded to react in the instances of Healing or Enhancing Magic
 	- In order for this type of processing to occur, you must build a reaction with the Actor of yourself
