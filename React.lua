@@ -1,6 +1,6 @@
 _addon.name = 'React'
 _addon.author = 'Sammeh, modified by Addon Ave'
-_addon.version = '1.7.0'
+_addon.version = '1.8.0'
 _addon.commands = {'react'}
 
 require('actions')
@@ -492,7 +492,7 @@ end
 
 if command:lower() == 'help' then
 windower.add_to_chat(208, 'React Commands:')
-windower.add_to_chat(208, '//react on|off - Enable/Disable')
+windower.add_to_chat(208, '//react [on|off] - Enable/Disable')
 windower.add_to_chat(208, '//react add - Adds a reaction to an ability')
 windower.add_to_chat(208, '//react list - Lists abilities per target')
 windower.add_to_chat(208, '//react remove - Removes action/reaction from a target')
