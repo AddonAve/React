@@ -2,7 +2,7 @@
 
 ## Release Notes
 
-**1.7.0 - Addon Ave modification**
+**1.8.0 - Addon Ave modification**
 1. Only reacts to targets that are claimed by self or party
 2. Added //react [on|off]
 
