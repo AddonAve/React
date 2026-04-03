@@ -3,7 +3,7 @@
 ## Release Notes
 
 **Version 1.8.0 - Addon Ave modification**
-1. Only reacts to targets that are claimed by self or party
+1. Only reacts to targets that are claimed by party or self
 2. Added //react [on|off]
 
 **Version 1.6.0.0**
@@ -23,7 +23,7 @@ React can react to the following events
 - [actor] finishes casting [action]
 - [actor] finishes ready [move]
 
-- Monster 1 hours have no "readying" so you can only react to a "complete"
+- Monster 1 hours have no "readying" so you can only react to a "complete".
  
 To create an action:
 - //react add "actor" "action" ready "reaction" (during ready phase)
