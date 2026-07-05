@@ -20,7 +20,7 @@ res = require('resources')
 -- Runtime movement state (Do Not Edit)
 autorun = 0
 
--- Change default React color
+-- Change default color
 chatcolor = 2
 
 -- 1 = On, 0 = Off
