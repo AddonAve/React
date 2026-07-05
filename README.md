@@ -2,6 +2,9 @@
 
 ## Release Notes
 
+**Version 2.0.0 - Addon Ave modification**
+1. Unclaimed mobs now trigger reactions when their action targets you or a party member
+
 **Version 1.8.0 - Addon Ave modification**
 1. Only reacts to targets that are claimed by party or self
 2. Added //react [on|off]
