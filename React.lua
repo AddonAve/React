@@ -50,7 +50,7 @@ custom_reactions_file = files.new('react_'..self.main_job..'.lua')
 if custom_reactions_file:exists() then
 windower.add_to_chat(chatcolor, "React: Loading File: react_" .. self.main_job .. ".lua")
 else
-windower.add_to_chat(chatcolor, "React: New job detected, Creating file: react_'..self.main_job..".lua")
+windower.add_to_chat(chatcolor, "React: New job detected, Creating file: react_" .. self.main_job .. ".lua")
 custom_reactions = {}
 custom_reactions_file:write('return ' .. T(custom_reactions):tovstring())
 end
