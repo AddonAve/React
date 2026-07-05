@@ -57,8 +57,6 @@ end
 custom_reactions = require('react_'..self.main_job)
 end
 
-
-
 local function action_targets_self_or_party(act, player)
 if not act or not act.targets then
 return false
@@ -599,7 +597,7 @@ end
 end
 
 if command:lower() == 'help' then
-windower.add_to_chat(208, 'React Commands:')
+windower.add_to_chat(208, '[React] Commands:')
 windower.add_to_chat(208, '//react [on|off] - Enable/Disable')
 windower.add_to_chat(208, '//react add - Adds a reaction to an ability')
 windower.add_to_chat(208, '//react list - Lists abilities per target')
