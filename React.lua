@@ -1,6 +1,6 @@
 _addon.name = 'React'
 _addon.author = 'Sammeh, modified by Addon Ave'
-_addon.version = '1.8.0'
+_addon.version = '2.0.0'
 _addon.commands = {'react'}
 
 require('actions')
@@ -19,10 +19,28 @@ res = require('resources')
 
 -- Runtime movement state (Do Not Edit)
 autorun = 0
+
 -- Change default React color
 chatcolor = 2
+
 -- 1 = On, 0 = Off
 react_enabled = 1
+
+-- Performance optimizations
+local next_prerender = 0
+local prerender_interval = 0.10
+
+local last_run_angle = nil
+local movement_angle_threshold = 0.05
+
+local party_cache = {}
+local next_party_cache = 0
+local party_cache_interval = 2.0
+
+local reaction_cooldowns = {}
+local reaction_cooldown_time = 0.5
+
+local valid_categories = S{4,7,8,11}
 
 if windower.ffxi.get_player() then 
 self = windower.ffxi.get_player()
@@ -37,6 +55,44 @@ custom_reactions = {}
 custom_reactions_file:write('return ' .. T(custom_reactions):tovstring())
 end
 custom_reactions = require('react_'..self.main_job)
+end
+
+
+
+local function action_targets_self_or_party(act, player)
+if not act or not act.targets then
+return false
+end
+
+for _, target in ipairs(act.targets) do
+if target and target.id then
+if player and target.id == player.id then
+return true
+end
+if party_cache[target.id] then
+return true
+end
+end
+end
+
+return false
+end
+
+local function update_party_cache()
+local now = os.clock()
+if now < next_party_cache then
+return
+end
+
+next_party_cache = now + party_cache_interval
+party_cache = {}
+
+local party = windower.ffxi.get_party()
+for _, member in pairs(party) do
+if type(member) == "table" and member.mob and member.mob.id then
+party_cache[member.mob.id] = true
+end
+end
 end
 
 function addaction(args)
@@ -113,31 +169,34 @@ end
 windower.register_event('action', function(act)
 -- Global master toggle
 if react_enabled == 0 then return end
-local actor = windower.ffxi.get_mob_by_id(act.actor_id)		
+
+if not act or not valid_categories:contains(act.category) then
+return
+end
+
+update_party_cache()
+
+local actor = windower.ffxi.get_mob_by_id(act.actor_id)
 local self = windower.ffxi.get_player()
 local target_count = act.target_count 
 local category = act.category  
 local param = act.param
 local recast = act.recast  
-local targets = act.targets
-local primarytarget = windower.ffxi.get_mob_by_id(targets[1].id)
+local targets = act.targets or {}
+local primarytarget = targets[1] and targets[1].id and windower.ffxi.get_mob_by_id(targets[1].id) or nil
 local valid_target = act.valid_target
 
--- Only reacts to targets that are claimed by self or party
-if actor and actor.is_npc and actor.name ~= self.name then
-local player = windower.ffxi.get_player()
-local party_ids = {}
-for _, member in pairs(windower.ffxi.get_party()) do
-if type(member) == "table" and member.mob and member.mob.id then
-party_ids[member.mob.id] = true
-end
-end
+-- Reacts if the actor is claimed by self/party OR if the action targets self/party
+if actor and actor.is_npc and self and actor.name ~= self.name then
+local player = self
+local actor_claimed_by_self_or_party = actor.claim_id and (actor.claim_id == player.id or party_cache[actor.claim_id])
+local action_on_self_or_party = action_targets_self_or_party(act, player)
 
-if actor.claim_id == player.id or party_ids[actor.claim_id] then
+if actor_claimed_by_self_or_party or action_on_self_or_party then
 if debugmode == 1 then
-if category == 7 and res.monster_abilities[targets[1].actions[1].param] then
+if category == 7 and targets[1] and targets[1].actions and targets[1].actions[1] and res.monster_abilities[targets[1].actions[1].param] then
 print('Ready Move:', actor.name, res.monster_abilities[targets[1].actions[1].param].en)
-elseif category == 8 and res.spells[targets[1].actions[1].param] then
+elseif category == 8 and targets[1] and targets[1].actions and targets[1].actions[1] and res.spells[targets[1].actions[1].param] then
 print('Begins Casting', actor.name, res.spells[targets[1].actions[1].param].en, res.skills[res.spells[targets[1].actions[1].param].skill].en)
 elseif category == 11 and res.monster_abilities[param] then
 print('Completed Ready Move:', actor.name, res.monster_abilities[param].en)
@@ -146,7 +205,7 @@ print('Completed Casting', actor.name, res.spells[param].en)
 end
 end
 
-if category == 7 and targets[1].actions[1].param ~= 0 then
+if category == 7 and targets[1] and targets[1].actions and targets[1].actions[1] and targets[1].actions[1].param ~= 0 then
 local ability = res.monster_abilities[targets[1].actions[1].param]
 if ability then
 reaction(actor, category, ability, primarytarget)
@@ -156,7 +215,7 @@ local ability = res.monster_abilities[param]
 if ability then
 reaction(actor, category, ability, primarytarget)
 end
-elseif category == 8 and targets[1].actions[1].param ~= 0 then
+elseif category == 8 and targets[1] and targets[1].actions and targets[1].actions[1] and targets[1].actions[1].param ~= 0 then
 local ability = res.spells[targets[1].actions[1].param]
 if ability then
 reaction(actor, category, ability, primarytarget)
@@ -172,6 +231,14 @@ end
 end)
 
 windower.register_event('prerender', function()
+
+local now = os.clock()
+if now < next_prerender then
+return
+end
+
+next_prerender = now + prerender_interval
+
 -- If disabled, ensure we are not running
 if react_enabled == 0 then
 if autorun == 1 then
@@ -190,7 +257,11 @@ autorun = 0
 else
 local self_vector = windower.ffxi.get_mob_by_index(windower.ffxi.get_player().index or 0)
 local angle = (math.atan2((t.y - self_vector.y), (t.x - self_vector.x))*180/math.pi)*-1
-windower.ffxi.run((angle+180):radian())
+local run_angle = (angle+180):radian()
+if not last_run_angle or math.abs(run_angle - last_run_angle) > movement_angle_threshold then
+last_run_angle = run_angle
+windower.ffxi.run(run_angle)
+end
 end
 elseif autorun_tofrom == 1 then -- run towards
 if t.distance:sqrt() < autorun_distance then	
@@ -199,7 +270,11 @@ autorun = 0
 else 
 local self_vector = windower.ffxi.get_mob_by_index(windower.ffxi.get_player().index or 0)
 local angle = (math.atan2((t.y - self_vector.y), (t.x - self_vector.x))*180/math.pi)*-1
-windower.ffxi.run((angle):radian())
+local run_angle = (angle):radian()
+if not last_run_angle or math.abs(run_angle - last_run_angle) > movement_angle_threshold then
+last_run_angle = run_angle
+windower.ffxi.run(run_angle)
+end
 end
 end
 else
@@ -211,6 +286,15 @@ end
 end)
 
 function reaction(actor,category,ability,primarytarget)
+local now = os.clock()
+
+local reaction_key = actor.id .. '_' .. ability.en .. '_' .. category
+
+if reaction_cooldowns[reaction_key] and (now - reaction_cooldowns[reaction_key]) < reaction_cooldown_time then
+return
+end
+
+reaction_cooldowns[reaction_key] = now
 if custom_reactions[actor.name] then 
 if custom_reactions[actor.name][ability.en] then
 if category == 7 or category == 8 then 
@@ -361,7 +445,11 @@ end
 local self_vector = windower.ffxi.get_mob_by_index(windower.ffxi.get_player().index or 0)
 if target and target.name ~= self_vector.name then 
 local angle = (math.atan2((target.y - self_vector.y), (target.x - self_vector.x))*180/math.pi)*-1
-windower.ffxi.run((angle+180):radian())
+local run_angle = (angle+180):radian()
+if not last_run_angle or math.abs(run_angle - last_run_angle) > movement_angle_threshold then
+last_run_angle = run_angle
+windower.ffxi.run(run_angle)
+end
 autorun = 1
 autorun_target = target
 autorun_distance = action_distance
@@ -397,7 +485,11 @@ end
 local self_vector = windower.ffxi.get_mob_by_index(windower.ffxi.get_player().index or 0)
 if target and target.name ~= self_vector.name then -- Please note if you target yourself you will run Due East
 local angle = (math.atan2((target.y - self_vector.y), (target.x - self_vector.x))*180/math.pi)*-1
-windower.ffxi.run((angle):radian())
+local run_angle = (angle):radian()
+if not last_run_angle or math.abs(run_angle - last_run_angle) > movement_angle_threshold then
+last_run_angle = run_angle
+windower.ffxi.run(run_angle)
+end
 autorun = 1
 autorun_target = target
 autorun_distance = action_distance
@@ -421,6 +513,22 @@ local args = L{...}
 local cmd = (command and command:lower()) or ''
 if cmd == 'on' then
 react_enabled = 1
+
+-- Performance optimizations
+local next_prerender = 0
+local prerender_interval = 0.10
+
+local last_run_angle = nil
+local movement_angle_threshold = 0.05
+
+local party_cache = {}
+local next_party_cache = 0
+local party_cache_interval = 2.0
+
+local reaction_cooldowns = {}
+local reaction_cooldown_time = 0.5
+
+local valid_categories = S{4,7,8,11}
 windower.add_to_chat(chatcolor, "React: Enabled")
 return
 end
@@ -502,12 +610,9 @@ end
 end)
 
 --------------------------------------------------------------------------------
--- Job change + Zone change
+-- Job change
 --------------------------------------------------------------------------------
 
 windower.register_event('job change', function()
 windower.send_command('lua r react')    
-end)
-
-windower.register_event('zone change', function(new,old)
 end)
